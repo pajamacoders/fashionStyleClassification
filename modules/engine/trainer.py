@@ -98,3 +98,48 @@ def local_loss(criterion, gx, gp, gn, lx, lp, ln):
 			 torch.mean(torch.clamp(1.-sim_n_ins, min=0))
 
 	return lt_loss, a_loss
+
+
+def do_train_classifier(cfg, model, data_loader, gt, lt, optimizer, criterion, device, logger, epoch):
+	ce_stats = AverageMeter()
+	batch_time = AverageMeter()
+	data_time = AverageMeter()
+
+	model.train()
+
+	end = time.time()
+	for idx, batch in enumerate(data_loader):
+		x, p, n, a, x_cid, p_cid, n_cid = batch
+		n_data = len(x)
+		a = a.to(device)
+
+		x_cid=x_cid.to(device)
+
+		gx = torch.stack([gt(i) for i in x], dim=0).to(device)
+
+		data_time.update(time.time() - end)
+
+		gx, gx_attnmap, gx_cls_score = model(gx, a, level='global', label = x_cid)
+
+		celoss_x = criterion['celoss'](gx_cls_score, x_cid)
+		total_ce = celoss_x
+
+		ce_stats.update(total_ce.cpu().item(), n_data)
+		loss = total_ce
+		
+		optimizer.zero_grad()
+		loss.backward()
+		optimizer.step()
+
+		batch_time.update(time.time() - end)
+		end = time.time()
+
+		if idx % cfg.SOLVER.LOG_PERIOD == 0:
+			logger.info(f"Train Epoch: [{epoch}][{idx}/{len(data_loader)}]\t"+
+						 f"CELoss: {ce_stats.val:.8f}({ce_stats.avg:.8f})\t"+
+			 			f"Batch Time: {batch_time.val:.3f}({batch_time.avg:.3f})\t"+
+			 			f"Data Time: {data_time.val:.3f}({data_time.avg:.3f})")
+
+
+	with open('Kfashion_resnet50_cosloss_only/lossts.txt', 'a') as f:
+		f.write(f'epoch:{epoch} - ce_loss:{ce_stats.avg:.8f} \n')

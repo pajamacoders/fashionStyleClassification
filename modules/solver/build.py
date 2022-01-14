@@ -1,5 +1,5 @@
 import torch
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR
 
 
 def build_optimizer(cfg, model):
@@ -19,8 +19,13 @@ def build_optimizer(cfg, model):
 
 
 def build_lr_scheduler(cfg, optimizer):
-    return StepLR(
-        optimizer,
-        step_size=cfg.SOLVER.STEP_SIZE,
-        gamma=cfg.SOLVER.DECAY_RATE
-    )
+    if cfg.SOLVER.TYPE == 'StepLR':
+        return StepLR(
+            optimizer,
+            step_size=cfg.SOLVER.STEP_SIZE,
+            gamma=cfg.SOLVER.DECAY_RATE
+        )
+    elif cfg.SOLVER.TYPE == 'CosineAnnealingLR':
+        return CosineAnnealingLR(optimizer, T_max=cfg.SOLVER.EPOCHS, eta_min=1e-7)
+    else:
+        raise NotImplementedError('not implemented lr scheduler type')

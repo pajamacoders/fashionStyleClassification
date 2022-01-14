@@ -43,10 +43,10 @@ class ASEN(nn.Module):
 	def forward(self, x, a, level='global'):
 		a = self.choices[level]['attrnet'](a)
 
-		x = self.choices[level]['basenet'](x)
+		x, gfeature = self.choices[level]['basenet'](x)
 		x, attmap = self.choices[level]['attnnet'](x, a)
 		
-		return x, attmap
+		return x, attmap, gfeature
 
 	def load_state_dict(self, loaded_state_dict):
 		state = super(ASEN, self).state_dict()

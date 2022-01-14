@@ -44,6 +44,7 @@ def main(cfg):
     jsons=glob.glob(os.path.join(args.json_prefix, '**/*.json'), recursive=True)
     img_prefix = args.img_prefix
     att_id = torch.tensor([0]).long().to(device)
+    model.eval()
     for jsonpath in tqdm(jsons):
         
         with open(jsonpath,'r') as f:
@@ -65,13 +66,15 @@ def main(cfg):
             inimg = gt(inimg)
             inimg = inimg.to(device).unsqueeze(0)
             with torch.no_grad():
-                g_feats, attmap, cls_score = model(inimg, att_id, level='global')
+                g_feats, attmap, cls_score = model.forward_test(inimg, att_id, level='global')
+            cls_score=cls_score.squeeze()
             cls_score = cls_score.softmax(dim=-1)
             cls_id = cls_score.argmax(dim=-1)
-            # imgname = os.path.basename(imgpath)
-            # imgname = imgname.split('.')[0]
-            # crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
-            # cv2.imwrite(f'visualize/{imgname}_{i}_{id2cls[cls_id.item()]}.jpg', crop)
+            if args.visualize:
+                imgname = os.path.basename(imgpath)
+                imgname = imgname.split('.')[0]
+                crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
+                cv2.imwrite(f'visualize/{imgname}_{i}_{id2cls[cls_id.item()]}_{cls_score[cls_id].item():.4f}.jpg', crop)
 
             
             obj_infos.append({'bbox':bbox,
@@ -116,6 +119,7 @@ def parse_args():
     parser.add_argument("--img_prefix", default=None, type=str, help="img prefix")
     parser.add_argument("--json_prefix", default=None, type=str, help="path to directory of input json files")
     parser.add_argument("--json_outpath", default=None, type=str, help="path to directory of output json files")
+    parser.add_argument("--visualize", action='store_true')
 
     return parser.parse_args()
 
