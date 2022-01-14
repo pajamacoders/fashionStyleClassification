@@ -1,0 +1,183 @@
+{
+	"FashionAI":{
+		"attributes":[
+			{
+				"name": "skirt_length",
+				"num": 6
+			},
+			{
+				"name": "sleeve_length",
+				"num": 9
+			},
+			{
+				"name": "coat_length",
+				"num": 8
+			},
+			{
+				"name": "pant_length",
+				"num": 6
+			},
+			{
+				"name": "collar_design",
+				"num": 5
+			},
+			{
+				"name": "lapel_design",
+				"num": 5
+			},
+			{
+				"name": "neckline_design",
+				"num": 10
+			},
+			{
+				"name": "neck_design",
+				"num": 5
+			}
+		],
+		"train":{
+			"fname_list": "filenames_train.txt",
+			"label_file": "label_train.txt"
+		},
+		"valid":{
+			"fname_list": "filenames_valid.txt",
+			"label_file":{
+				"query": "query_valid.txt",
+				"candidate": "candidate_valid.txt"
+			}
+		},
+		"test":{
+			"fname_list": "filenames_test.txt",
+			"label_file":{
+				"query": "query_test.txt",
+				"candidate": "candidate_test.txt"
+			}
+		}
+	},
+	"DARN":{
+		"attributes":[
+			{
+				"name": "clothes category",
+				"num": 20
+			},
+			{
+				"name": "clothes button",
+				"num": 13
+			},
+			{
+				"name": "clothes color",
+				"num": 55
+			},
+			{
+				"name": "clothes length",
+				"num": 7
+			},
+			{
+				"name": "clothes pattern",
+				"num": 28
+			},
+			{
+				"name": "clothes shape",
+				"num": 11
+			},
+			{
+				"name": "collar shape",
+				"num": 26
+			},
+			{
+				"name": "sleeve length",
+				"num": 8
+			},
+			{
+				"name": "sleeve shape",
+				"num": 17
+			}
+		],
+		"train":{
+			"fname_list": "filenames_train.txt",
+			"label_file": "label_train.txt"
+		},
+		"valid":{
+			"fname_list": "filenames_valid.txt",
+			"label_file":{
+				"query": "query_valid.txt",
+				"candidate": "candidate_valid.txt"
+			}
+		},
+		"test":{
+			"fname_list": "filenames_test.txt",
+			"label_file":{
+				"query": "query_test.txt",
+				"candidate": "candidate_test.txt"
+			}
+		}
+	},
+	"DeepFashion":{
+		"attributes":[
+			{
+				"name": "texture-related",
+				"num": 156
+			},
+			{
+				"name": "fabric-related",
+				"num": 218
+			},
+			{
+				"name": "shape-related",
+				"num": 180
+			},
+			{
+				"name": "part-related",
+				"num": 216
+			},
+			{
+				"name": "style-related",
+				"num": 230
+			}
+		],
+		"train":{
+			"fname_list": "filenames_train.txt",
+			"label_file": "label_train.txt"
+		},
+		"valid":{
+			"fname_list": "filenames_valid.txt",
+			"label_file":{
+				"query": "query_valid.txt",
+				"candidate": "candidate_valid.txt"
+			}
+		},
+		"test":{
+			"fname_list": "filenames_test.txt",
+			"label_file":{
+				"query": "query_test.txt",
+				"candidate": "candidate_test.txt"
+			}
+		}
+	},
+	"Kfashion":{
+		"attributes":[
+			{
+				"name": "style",
+				"num": 3
+			}
+		],
+		"train":{
+			"fname_list": "filenames_train.txt",
+			"label_file": "label_train.txt"
+		},
+		"valid":{
+			"fname_list": "filenames_valid.txt",
+			"label_file":{
+				"query": "query_valid.txt",
+				"candidate": "candidate_valid.txt"
+			}
+		},
+		"test":{
+			"fname_list": "filenames_test.txt",
+			"label_file":{
+				"query": "query_test.txt",
+				"candidate": "candidate_test.txt"
+			}
+		}
+	}
+
+}
