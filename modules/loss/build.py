@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 def build_loss(cfg):
-	return TripletRankingLoss(cfg)
+	return {'triplet': TripletRankingLoss(cfg), 'celoss': ClsLoss()}
 
 
 class TripletRankingLoss(nn.Module):
@@ -21,3 +21,10 @@ class TripletRankingLoss(nn.Module):
 		loss = self.criterion(x1, x2, target)
 
 		return loss
+
+class ClsLoss(nn.Module):
+	def __init__(self):
+		super(ClsLoss, self).__init__()
+		self.cls_loss = nn.CrossEntropyLoss(reduction='mean')
+	def forward(self, input, target):
+		return self.cls_loss(input, target)

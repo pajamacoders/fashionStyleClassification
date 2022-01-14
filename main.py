@@ -139,5 +139,6 @@ if __name__ == "__main__":
     if args.cfg is not None:
         for cfg_file in args.cfg:
             cfg.merge_from_file(cfg_file)
+    
     cfg.freeze()
     main(cfg)

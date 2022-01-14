@@ -1,12 +1,12 @@
 from torch.utils.data import DataLoader
-from .datasets import BaseDataSet, triplet_collate_fn, image_collate_fn
+from .datasets import BaseDataSet, triplet_collate_fn, image_collate_fn, KfashionDataSet #Fashion14k
 from .samplers import TripletSampler, ImageSampler
 
 
 def build_data(cfg, test_on=None):
 	if test_on is None:
-		train_set = BaseDataSet(cfg, 'TRAIN')
-		valid_set = BaseDataSet(cfg, 'VALID')
+		train_set = KfashionDataSet(cfg, 'train')
+		valid_set = KfashionDataSet(cfg, 'valid')
 
 		train_loader = DataLoader(
 			train_set,
@@ -34,7 +34,7 @@ def build_data(cfg, test_on=None):
 
 		return train_loader, valid_query_loader, valid_candidate_loader
 	else:
-		test_set = BaseDataSet(cfg, test_on)
+		test_set = KfashionDataSet(cfg, 'valid')
 
 		test_query_loader = DataLoader(
 			test_set,

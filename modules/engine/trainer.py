@@ -7,6 +7,7 @@ from modules.utils.metric import AverageMeter
 
 def do_train(cfg, model, data_loader, gt, lt, optimizer, criterion, device, logger, epoch):
 	losses = AverageMeter()
+	celosses = AverageMeter()
 	if lt is not None:
 		glosses = AverageMeter()
 		llosses = AverageMeter()
@@ -18,22 +19,27 @@ def do_train(cfg, model, data_loader, gt, lt, optimizer, criterion, device, logg
 
 	end = time.time()
 	for idx, batch in enumerate(data_loader):
-		x, p, n, a = batch
+		x, p, n, a, a_cat_id, n_cat_id = batch
 		n_data = len(x)
 		a = a.to(device)
+		p_cat_id_gt = a_cat_id.to(device)
+		n_cat_id_gt = n_cat_id.to(device)
 
 		gx = torch.stack([gt(i) for i in x], dim=0).to(device)
 		gp = torch.stack([gt(i) for i in p], dim=0).to(device)
 		gn = torch.stack([gt(i) for i in n], dim=0).to(device)
+		
 
 		data_time.update(time.time() - end)
 
-		gx, gx_attnmap = model(gx, a, level='global')
-		gp, gp_attnmap = model(gp, a, level='global')
-		gn, gn_attnmap = model(gn, a, level='global')
+		gx, gx_attnmap, gx_cls_score = model(gx, a, level='global')
+		gp, gp_attnmap, gp_cls_score = model(gp, a, level='global')
+		gn, gn_attnmap, gn_cls_score = model(gn, a, level='global')
 
-		loss = cfg.SOLVER.GLOBAL_WEIGHT * criterion(gx, gp, gn)
-
+		loss = cfg.SOLVER.GLOBAL_WEIGHT * criterion['triplet'](gx, gp, gn)
+		p_ce_loss = 0.5*criterion['celoss'](gx_cls_score, p_cat_id_gt)
+		n_ce_loss = 0.5*criterion['celoss'](gn_cls_score, n_cat_id_gt)
+		ce_loss = p_ce_loss + n_ce_loss
 		if lt is not None:
 			glosses.update(loss.cpu().item(), n_data)
 
@@ -55,7 +61,8 @@ def do_train(cfg, model, data_loader, gt, lt, optimizer, criterion, device, logg
 			loss += cfg.SOLVER.LOCAL_WEIGHT * l[0] + cfg.SOLVER.ALIGN_WEIGHT * l[1]
 
 		losses.update(loss.cpu().item(), n_data)
-
+		celosses.update(ce_loss.cpu().item(), n_data*2)
+		loss =0.1*loss+ce_loss
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()
@@ -70,9 +77,14 @@ def do_train(cfg, model, data_loader, gt, lt, optimizer, criterion, device, logg
 		if idx % cfg.SOLVER.LOG_PERIOD == 0:
 			logger.info(f"Train Epoch: [{epoch}][{idx}/{len(data_loader)}]\t"+
 						local_log+
-			 			f"Loss: {losses.val:.4f}({losses.avg:.4f})\t"+
+			 			f"Loss: {losses.val:.6f}({losses.avg:.6f})\t"+
+						f"ce_loss:{celosses.val:.6f}({celosses.avg:.6f})\t"
 			 			f"Batch Time: {batch_time.val:.3f}({batch_time.avg:.3f})\t"+
 			 			f"Data Time: {data_time.val:.3f}({data_time.avg:.3f})")
+		
+
+	with open('kfashion_classification/losses.txt', 'a') as f:
+		f.write(f'epoch:{epoch} - triplet_loss:{losses.avg:.8f}, ceLoss:{celosses.avg:.8f}\n')
 
 
 

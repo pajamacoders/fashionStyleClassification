@@ -1,0 +1,18 @@
+DATA:
+  DATASET: Kfashion
+  NUM_ATTRIBUTES: 1
+  ATTRIBUTES:
+    NAME:
+      - style
+    NUM: [3]
+  PATH_FILE:
+    TRAIN: filenames_train.txt
+    VALID: filenames_valid.txt
+  GROUNDTRUTH:
+    TRAIN: label_train.txt
+    QUERY:
+      VALID: query_valid.txt
+      TEST: query_valid.txt
+    CANDIDATE:
+      VALID: candidate_valid.txt
+      TEST: candidate_valid.txt

@@ -45,9 +45,9 @@ class TripletSampler(Sampler):
 				x, p = random.sample(self.indices[self.attrs[a]][vp], 2)
 				# Randomly sample a negative image
 				n = random.choice(self.indices[self.attrs[a]][vn])
-				anchors.append((x, a))
-				positives.append((p, a))
-				negatives.append((n, a))
+				anchors.append((x, a, vp))
+				positives.append((p, a, vp))
+				negatives.append((n, a, vn))
 
 			yield anchors + positives + negatives
 

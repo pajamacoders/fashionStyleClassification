@@ -38,13 +38,14 @@ class ASEN(nn.Module):
 						cfg.MODEL.LOCAL.ATTENTION.CHANNEL.ENABLE
 					)
 				})})
+		
 
 	def forward(self, x, a, level='global'):
 		a = self.choices[level]['attrnet'](a)
 
 		x = self.choices[level]['basenet'](x)
 		x, attmap = self.choices[level]['attnnet'](x, a)
-
+		
 		return x, attmap
 
 	def load_state_dict(self, loaded_state_dict):
