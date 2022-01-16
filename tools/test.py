@@ -1,50 +1,19 @@
 import argparse
 import os, sys
-import time
-import datetime
-
-import torch
-
-from modules.config import cfg
-from modules.utils.logger import setup_logger
-from modules.model import build_model
-from modules.data.transforms import GlobalTransform
+sys.path.insert(0,os.path.join(os.path.dirname(__file__), os.path.pardir))
 import glob
 import json
 import cv2
 from tqdm import tqdm
-from PIL import Image
+from fashionStyleClassification import FashionStyleClassification
 
 id2cls = {0:'formal', 1:'semi-formal', 2:'casual'}
 
 
 def main(cfg):
-    logger = setup_logger(name="ASEN", level=cfg.LOGGER.LEVEL, stream=cfg.LOGGER.STREAM)
-    logger.info(cfg)
-
-    device = torch.device(cfg.DEVICE)
-    model = build_model(cfg)
-    n_parameters = sum([p.data.nelement() for p in model.parameters()])
-    logger.info(f"Number of parameters: {n_parameters}")
-    model.to(device)
-    
-    gt = GlobalTransform(cfg)
-
-    if args.resume is not None:
-        path = args.resume
-        if os.path.isfile(path):
-            logger.info(f"Loading checkpoint '{path}'.")
-            checkpoint = torch.load(path, map_location='cpu')
-            logger.info(f"Best performance {checkpoint['mAP']} at epoch {checkpoint['epoch']}.")
-            model.load_state_dict(checkpoint['model'])
-            logger.info(f"Loaded checkpoint '{path}'")
-        else:
-            logger.info(f"No checkpoint found at '{path}'.")
-            sys.exit()
     jsons=glob.glob(os.path.join(args.json_prefix, '**/*.json'), recursive=True)
     img_prefix = args.img_prefix
-    att_id = torch.tensor([0]).long().to(device)
-    model.eval()
+    styleClassifier = FashionStyleClassification(cfg.cfg[0])
     for jsonpath in tqdm(jsons):
         
         with open(jsonpath,'r') as f:
@@ -62,19 +31,13 @@ def main(cfg):
             tlx,tly, brx, bry = int(float(bbox[0])), int(float(bbox[1])), int(float(bbox[0]))+int(float(bbox[2])),  int(float(bbox[1]))+int(float(bbox[3]))
             crop = img[tly:bry, tlx:brx].copy()
             
-            inimg = Image.fromarray(crop.copy())
-            inimg = gt(inimg)
-            inimg = inimg.to(device).unsqueeze(0)
-            with torch.no_grad():
-                g_feats, attmap, cls_score = model.forward_test(inimg, att_id, level='global')
-            cls_score=cls_score.squeeze()
-            cls_score = cls_score.softmax(dim=-1)
-            cls_id = cls_score.argmax(dim=-1)
+            res = styleClassifier.inference(crop)
+           
             if args.visualize:
                 imgname = os.path.basename(imgpath)
                 imgname = imgname.split('.')[0]
                 crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
-                cv2.imwrite(f'visualize/{imgname}_{i}_{id2cls[cls_id.item()]}_{cls_score[cls_id].item():.4f}.jpg', crop)
+                #cv2.imwrite(f'visualize/{imgname}_{i}_{res['style']}_{res['score']:.4f}.jpg', crop)
 
             
             obj_infos.append({'bbox':bbox,
@@ -110,12 +73,6 @@ def parse_args():
     parser.add_argument(
         "--cfg", nargs="+", help="config file", default=None, type=str
     )
-    parser.add_argument(
-        "--test", help="run test on validation or test set", default=None, type=str
-    )
-    parser.add_argument(
-        "--resume", help="checkpoint model to resume", default=None, type=str
-    )
     parser.add_argument("--img_prefix", default=None, type=str, help="img prefix")
     parser.add_argument("--json_prefix", default=None, type=str, help="path to directory of input json files")
     parser.add_argument("--json_outpath", default=None, type=str, help="path to directory of output json files")
@@ -126,9 +83,9 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    if args.cfg is not None:
-        for cfg_file in args.cfg:
-            cfg.merge_from_file(cfg_file)
+    # if args.cfg is not None:
+    #     for cfg_file in args.cfg:
+    #         cfg.merge_from_file(cfg_file)
     
-    cfg.freeze()
-    main(cfg)
+    # cfg.freeze()
+    main(args)
