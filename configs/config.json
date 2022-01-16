@@ -1,0 +1,5 @@
+{
+    "model_cfg":"Kfashion",
+    "pretrained":"Kfashion_resnet50_cosloss_only/Kfashion_s1/checkpoint.pth.tar",
+    "category": {"0":"formal", "1":"semi-formal", "2":"casual"}
+}
