@@ -16,13 +16,16 @@ Install other required packages by
 ```sh
 pip install -r requirements.txt
 ```
-
-To install mmcv. mmcv version used in this repo is 'mmcv==1.3.18'
+or 
 ```sh
-git clone https://github.com/open-mmlab/mmcv.git
-cd mmcv
-pip install -r requirements/optional.txt
-MMCV_WITH_OPS=1 pip install -e .
+git clone https://github.com/pajamacoders/fashionStyleClassification.git
+cd fashionStyleClassification
+pip3 install .
+```
+
+## run demo
+```
+python3 demo/main.py --cfg configs/config.json --img demo/demo.jpg
 ```
 
 
