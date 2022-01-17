@@ -5,6 +5,7 @@ try:
 except ModuleNotFoundError:
     import os, sys
     sys.path.insert(0,os.path.join(os.path.dirname(__file__), os.path.pardir))
+    from fashionStyleClassification import FashionStyleClassification
 
 def main(cfg):
     styleClassifier = FashionStyleClassification(cfg.cfg[0])
