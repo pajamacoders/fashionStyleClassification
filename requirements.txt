@@ -2,7 +2,7 @@ torch==1.8.0
 torchvision==0.9.*
 tqdm~=4.53.0
 yacs~=0.1.8
-opencv-python==4.*
+opencv-python>=3.2
 numpy>=1.19.0
-json>=2.0
+jsons>=2.0
 pillow>=8.3.1
