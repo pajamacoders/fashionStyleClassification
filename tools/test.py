@@ -1,11 +1,16 @@
 import argparse
-import os, sys
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), os.path.pardir))
+import os
 import glob
 import json
 import cv2
 from tqdm import tqdm
-from fashionStyleClassification import FashionStyleClassification
+try:
+    from fashionStyleClassification import FashionStyleClassification
+except ModuleNotFoundError:
+    import sys
+    sys.path.insert(0,os.path.join(os.path.dirname(__file__), os.path.pardir))
+
+
 
 id2cls = {0:'formal', 1:'semi-formal', 2:'casual'}
 
